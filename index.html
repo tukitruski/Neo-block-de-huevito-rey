@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choche Chat Simulator new version</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fdf6e3;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    .shake {
+      animation: shake 0.5s;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+
+    .flash {
+      animation: flash 0.1s infinite;
+    }
+
+    @keyframes flash {
+      0% { background-color: white; }
+      50% { background-color: red; }
+      100% { background-color: white; }
+    }
+
+    .pixelated {
+      image-rendering: pixelated;
+      filter: blur(2px) contrast(150%);
+    }
+
+    .inverted {
+      filter: invert(1) hue-rotate(180deg);
+    }
+
+    .rotated {
+      transform: rotate(5deg);
+    }
+
+    .brainrot-mode {
+      animation: brainrot-effects 0.2s infinite;
+    }
+
+    @keyframes brainrot-effects {
+      0% { transform: rotate(-2deg) scale(1.02); filter: hue-rotate(0deg) saturate(150%); }
+      25% { transform: rotate(1deg) scale(0.98); filter: hue-rotate(90deg) saturate(200%); }
+      50% { transform: rotate(2deg) scale(1.01); filter: hue-rotate(180deg) saturate(100%); }
+      75% { transform: rotate(-1deg) scale(0.99); filter: hue-rotate(270deg) saturate(175%); }
+      100% { transform: rotate(0deg) scale(1); filter: hue-rotate(360deg) saturate(150%); }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 3px solid #2c3e50;
+      position: relative;
+    }
+
+    .visit-counter {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: rgba(44, 62, 80, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .click-counter {
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      background: rgba(44, 62, 80, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .header {
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .instructions {
+      background: #ecf0f1;
+      padding: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #posts {
+      height: 400px;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+
+    .post {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #e3f2fd;
+      border-radius: 5px;
+      border-left: 4px solid #2196f3;
+    }
+
+    .post.choche {
+      background: #fff3e0;
+      border-left-color: #ff9800;
+      font-weight: bold;
+    }
+
+    .post.jose {
+      background: #f3e5f5;
+      border-left-color: #9c27b0;
+      font-style: italic;
+    }
+
+    .post.chilean-nationalist {
+      background: #e8f5e8;
+      border-left-color: #4caf50;
+      font-weight: bold;
+    }
+
+    .night-mode {
+      background-color: #1a1a1a !important;
+      color: #e0e0e0 !important;
+    }
+
+    .night-mode .container {
+      background: #2d2d2d !important;
+      color: #e0e0e0 !important;
+    }
+
+    .night-mode #posts {
+      background: #333 !important;
+      color: #e0e0e0 !important;
+    }
+
+    .night-mode .post {
+      background: #404040 !important;
+      color: #e0e0e0 !important;
+    }
+
+    .horror-mode {
+      background: linear-gradient(45deg, #8B0000, #DC143C, #B22222) !important;
+      animation: horror-bg 2s infinite alternate;
+    }
+
+    @keyframes horror-bg {
+      0% { background: linear-gradient(45deg, #8B0000, #DC143C, #B22222); }
+      100% { background: linear-gradient(45deg, #B22222, #8B0000, #DC143C); }
+    }
+
+    #overlayBan {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 1000;
+    }
+
+    #whiteScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 1007;
+    }
+
+    #whiteScreen.hidden {
+      display: none;
+    }
+
+    #debugMenu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 999;
+    }
+
+    #debugMenu.hidden {
+      display: none;
+    }
+
+    .debug-button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .debug-button:hover {
+      background: #0056b3;
+    }
+
+    #bgmusic {
+      display: none;
+    }
+
+    #freeMode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+    }
+
+    #freeMode.hidden {
+      display: none;
+    }
+
+    #freeModeInput {
+      padding: 10px;
+      font-size: 16px;
+      width: 300px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .warning-text {
+      color: #ff6b6b;
+      font-size: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #newsOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1a1a1a;
+      color: white;
+      z-index: 1002;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #newsOverlay.hidden {
+      display: none;
+    }
+
+    .news-header {
+      background: #c41e3a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .news-content {
+      padding: 40px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .news-ticker {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: #c41e3a;
+      color: white;
+      padding: 10px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .news-ticker span {
+      display: inline-block;
+      animation: scroll-left 30s linear infinite;
+    }
+
+    @keyframes scroll-left {
+      0% { transform: translate3d(100%, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    #donationMenu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.95);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      z-index: 1003;
+      text-align: center;
+    }
+
+    #donationMenu.hidden {
+      display: none;
+    }
+
+    .donation-item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #333;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    #excelOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 1004;
+    }
+
+    #excelOverlay.hidden {
+      display: none;
+    }
+
+    .excel-header {
+      background: #217346;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+    }
+
+    .excel-content {
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+    }
+
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      z-index: 1005;
+    }
+
+    #loadingScreen.hidden {
+      display: none;
+    }
+
+    #rpgGame {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: white;
+      z-index: 1006;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #rpgGame.hidden {
+      display: none;
+    }
+
+    .rpg-enemy {
+      font-size: 48px;
+      margin: 20px;
+    }
+
+    .health-bar {
+      width: 200px;
+      height: 20px;
+      background: #333;
+      border: 2px solid #fff;
+      margin: 10px;
+      position: relative;
+    }
+
+    .health-fill {
+      height: 100%;
+      background: #ff0000;
+      transition: width 0.3s ease;
+    }
+
+    .rpg-actions {
+      display: flex;
+      gap: 10px;
+      margin: 20px;
+    }
+
+    .rpg-button {
+      padding: 10px 20px;
+      background: #333;
+      color: white;
+      border: 2px solid #fff;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .rpg-button:hover {
+      background: #555;
+    }
+
+    .action-log {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 300px;
+      height: 400px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border: 1px solid #fff;
+    }
+
+    .log-entry {
+      margin-bottom: 5px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #333;
+    }
+
+    #minigame1, #minigame2 {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: white;
+      z-index: 1008;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    #minigame1.hidden, #minigame2.hidden {
+      display: none;
+    }
+
+    .minigame-title {
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: #ff6b6b;
+    }
+
+    .minigame-content {
+      font-size: 18px;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+
+    .minigame-button {
+      padding: 15px 30px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    .minigame-button:hover {
+      background: #ff5252;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="visit-counter">Visitas: <span id="visitCount">1</span></div>
+    <div class="click-counter">Click de huevito: <span id="clickCount">0</span></div>
+    <header class="header">
+      <h1>neo block de huevito rey</h1>
+    </header>
+
+    <div class="instructions">
+      <strong>Instrucciones:</strong>
+      <ul>
+        <li>Haz clic para enviar mensajes de Huevito Rey</li>
+        <li>Presiona ESPACIO para enviar comentarios positivos sobre Choche</li>
+        <li>Presiona M para que Choche hable sobre las reglas</li>
+        <li>Presiona C para las reglas del chat</li>
+        <li>Presiona 1, 2, 3 para reglas específicas</li>
+        <li>Presiona J para que José hable</li>
+        <li>Presiona F para modo fiesta</li>
+        <li>Presiona ENTER para modo libre (escribir comentarios)</li>
+        <li>Escribe "huevito" para abrir el menú debug</li>
+        <li>Presiona F7 y F8 para minijuegos especiales</li>
+        <li>Presiona Q para audio especial</li>
+        <li>Presiona 5 para invertir colores</li>
+        <li>Escribe "brainrot mode" en modo libre para efectos especiales</li>
+      </ul>
+    </div>
+
+    <div id="posts"></div>
+  </div>
+
+  <div id="freeMode" class="hidden">
+    <div class="warning-text">
+      ⚠️ MODO LIBRE ACTIVADO ⚠️<br>
+      Puedes escribir cualquier comentario<br>
+      Presiona ENTER nuevamente para salir
+    </div>
+    <input type="text" id="freeModeInput" placeholder="Escribe tu comentario aquí..." maxlength="200">
+  </div>
+
+  <div id="debugMenu" class="hidden">
+    <h3>Debug Menu</h3>
+    <p>Selecciona una ruta:</p>
+    <button class="debug-button" onclick="startRuta('bueno')">Ruta Good Ending</button>
+    <button class="debug-button" onclick="startRuta('malo')">Ruta Baneo</button>
+    <button class="debug-button" onclick="startRuta('inactivo')">Ruta Inactividad</button>
+    <button class="debug-button" onclick="cerrarDebugMenu()">Cerrar</button>
+  </div>
+
+  <div id="newsOverlay" class="hidden">
+    <div class="news-header">NOTICIAS URGENTES - CANAL 13</div>
+    <div class="news-content">
+      <h2>ÚLTIMA HORA: Huevito Rey arrestado por las autoridades</h2>
+      <p>En una operación coordinada entre la PDI y Carabineros, el conocido personaje de internet "Huevito Rey" fue detenido esta madrugada en su domicilio en Las Condes.</p>
+      <p>Según fuentes policiales, el arresto se realizó en el marco de una investigación por ciberacoso y amenazas en redes sociales.</p>
+      <p>El streamer Choche007 celebró la noticia en sus redes sociales: "Por fin se hizo justicia, ya era hora".</p>
+      <p>Más información en nuestro próximo noticiario.</p>
+    </div>
+    <div class="news-ticker">
+      <span>ÚLTIMA HORA: Huevito Rey arrestado • Choche007 celebra en redes sociales • Investigación por ciberacoso continúa • Más detalles próximamente</span>
+    </div>
+  </div>
+
+  <div id="donationMenu" class="hidden">
+    <h3>💰 DONACIONES RECIENTES 💰</h3>
+    <div class="donation-item">AnonimoChileno donó $5.000: "Wena Choche!"</div>
+    <div class="donation-item">FanDeChoche donó $10.000: "Eres el mejor!"</div>
+    <div class="donation-item">ChilenoPatriota donó $15.000: "Viva Chile!"</div>
+    <div class="donation-item">HuevitoHater donó $25.000: "Muerte al huevito!"</div>
+    <div class="donation-item">MegaDonador donó $50.000: "CHOCHE DIOS!"</div>
+  </div>
+
+  <div id="excelOverlay" class="hidden">
+    <div class="excel-header">Microsoft Excel - Hoja de cálculo sin título</div>
+    <div class="excel-content">
+      <table border="1" style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 5px; background: #f0f0f0; font-weight: bold;">A</td>
+          <td style="padding: 5px; background: #f0f0f0; font-weight: bold;">B</td>
+          <td style="padding: 5px; background: #f0f0f0; font-weight: bold;">C</td>
+          <td style="padding: 5px; background: #f0f0f0; font-weight: bold;">D</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px;">Producto</td>
+          <td style="padding: 5px;">Cantidad</td>
+          <td style="padding: 5px;">Precio</td>
+          <td style="padding: 5px;">Total</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px;">Laptop</td>
+          <td style="padding: 5px;">2</td>
+          <td style="padding: 5px;">$800</td>
+          <td style="padding: 5px;">$1600</td>
+        </tr>
+        <tr>
+          <td style="padding: 5px;">Mouse</td>
+          <td style="padding: 5px;">5</td>
+          <td style="padding: 5px;">$25</td>
+          <td style="padding: 5px;">$125</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="loadingScreen" class="hidden">
+    <div>
+      <div>Cargando minijuego...</div>
+      <div style="margin-top: 20px;">███████████████████████████████</div>
+    </div>
+  </div>
+
+  <div id="whiteScreen" class="hidden">
+    aca no hay nada profesor o profesora
+  </div>
+
+  <div id="rpgGame" class="hidden">
+    <div class="action-log" id="actionLog">
+      <div style="text-decoration: underline; margin-bottom: 10px;">Registro de Batalla</div>
+    </div>
+
+    <div class="rpg-enemy">🥚</div>
+    <div>Huevito Rey</div>
+    <div class="health-bar">
+      <div class="health-fill" id="enemyHealthFill" style="width: 100%;"></div>
+    </div>
+    <div id="enemyHealth">HP: 15/15</div>
+
+    <div style="margin: 40px 0;">VS</div>
+
+    <div>Choche007</div>
+    <div class="health-bar">
+      <div class="health-fill" id="playerHealthFill" style="width: 100%;"></div>
+    </div>
+    <div id="playerHealth">HP: 12/12</div>
+
+    <div class="rpg-actions">
+      <button class="rpg-button" onclick="playerAction('atacar')">Atacar</button>
+      <button class="rpg-button" onclick="playerAction('decir_verdad')">Decir Verdad</button>
+      <button class="rpg-button" onclick="playerAction('gritar')">Gritar</button>
+      <button class="rpg-button" onclick="playerAction('cura')">Cura</button>
+    </div>
+  </div>
+
+  <div id="minigame1" class="hidden">
+    <div class="minigame-title">🇨🇱 BATALLA DE LOWCOWS CHILENOS 🇨🇱</div>
+    <div class="minigame-content">
+      <h3>Choche007 vs Huevito Rey - Duelo Final</h3>
+      <p>Choche dice: "Huevito culiao, llegó la hora de que sepas quién manda en este país de mierda"</p>
+      <p>Huevito Rey: "Gorda malaya asquerosa, te voy a hacer mierda como siempre"</p>
+      <div style="margin: 30px 0;">
+        <button class="minigame-button" onclick="minigame1Action('insultar')">Insultar como Choche</button>
+        <button class="minigame-button" onclick="minigame1Action('defender')">Defender Chile</button>
+        <button class="minigame-button" onclick="minigame1Action('atacar')">Atacar con todo</button>
+      </div>
+      <div id="minigame1Result"></div>
+      <button class="minigame-button" onclick="closeMinigame1()" style="background: #666;">Salir</button>
+    </div>
+  </div>
+
+  <div id="minigame2" class="hidden">
+    <div class="minigame-title">🥚 HUEVITO REY SIMULATOR 🥚</div>
+    <div class="minigame-content">
+      <h3>Conviértete en el Huevito Rey</h3>
+      <p>Eres Huevito Rey y debes molestar a Choche con insultos chilenos</p>
+      <div style="margin: 30px 0;">
+        <button class="minigame-button" onclick="minigame2Action('gorda')">Llamar "gorda" a Choche</button>
+        <button class="minigame-button" onclick="minigame2Action('malaya')">Decir "malaya asquerosa"</button>
+        <button class="minigame-button" onclick="minigame2Action('saco')">Insultar "saco wea"</button>
+        <button class="minigame-button" onclick="minigame2Action('ultimate')">INSULTO ULTIMATE</button>
+      </div>
+      <div id="minigame2Result"></div>
+      <div id="minigame2Score">Puntos de Toxicidad: <span id="toxicityScore">0</span></div>
+      <button class="minigame-button" onclick="closeMinigame2()" style="background: #666;">Salir</button>
+    </div>
+  </div>
+
+
+  <script>
+    (() => {
+      const posts = document.getElementById('posts');
+      const debugMenu = document.getElementById('debugMenu');
+      const bgmusic = document.getElementById('bgmusic');
+      const freeMode = document.getElementById('freeMode');
+      const freeModeInput = document.getElementById('freeModeInput');
+      const visitCountElement = document.getElementById('visitCount');
+      const clickCountElement = document.getElementById('clickCount');
+      const newsOverlay = document.getElementById('newsOverlay');
+      const donationMenu = document.getElementById('donationMenu');
+      const excelOverlay = document.getElementById('excelOverlay');
+      const loadingScreen = document.getElementById('loadingScreen');
+      const rpgGame = document.getElementById('rpgGame');
+      const whiteScreen = document.getElementById('whiteScreen');
+      const minigame1 = document.getElementById('minigame1');
+      const minigame2 = document.getElementById('minigame2');
+
+      let clickCount = 0;
+      let positiveCount = 0;
+      let banActivated = false;
+      let inactiveTimeout = null;
+      let blocked = false;
+      let capsLockActive = false;
+      let huevitoSequence = ['h','u','e','v','i','t','o'];
+      let huevitoIndex = 0;
+      let debugMenuVisible = false;
+      let debugMenuTimer = null;
+      let huevito69Cooldown = false;
+      let showerTimeout = null;
+      let freeModeActive = false;
+      let joseGayCount = 0;
+      let vivaVenezuelaCount = 0;
+      let forgivenessMode = false;
+      let forgivenessCount = 0;
+      let namesReversed = false;
+      let altModeActive = false;
+      let altModeCounter = 0;
+      let altModeTimer = null;
+      let secretClickCounter = 0;
+      let lastActivity = Date.now();
+      let nightMode = false;
+      let horrorMode = false;
+      let horrorExitCount = 0;
+      let misteriumCount = 0;
+      let flashingMode = false;
+      let whiteScreenActive = false;
+      let mCooldown = false;
+      let playerDefenseDownTurns = 0;
+      let brainrotMode = false;
+      let brainrotTimeout = null;
+      let colorInverted = false;
+      let colorInvertTimeout = null;
+      let toxicityScore = 0;
+
+      // Visit counter
+      let visitCount = localStorage.getItem('chocheVisitCount') || 0;
+      visitCount++;
+      localStorage.setItem('chocheVisitCount', visitCount);
+      visitCountElement.textContent = visitCount;
+
+      // RPG Game variables
+      let playerMaxHP = 0;
+      let playerCurrentHP = 0;
+      let enemyMaxHP = 0;
+      let enemyCurrentHP = 0;
+      let playerAttackBoost = false;
+      let playerDefenseDown = false;
+      let enemyAttackBoost = false;
+      let enemyDefenseDown = false;
+
+      const positiveComments = [
+        "Choche es lo mejor que nos pudo pasar.",
+        "Huevito Rey no tiene cocos contra Choche.",
+        "Apoyemos a Choche, huevito pedofilo de mierda.",
+        "Choche, el dios del chat, te amamos.",
+        "Huevito Rey?,¡NO! aquí manda Choche.",
+        "TOTAL HUEVITO REY DEATH",
+        "Defendamos a Choche de todos los trolls.",
+        "Choche es la verdadera leyenda del blog.",
+        "Nadie puede contra Choche, punto.",
+        "Choche nos guía y protege.",
+        "Choche dios, bendice a tus seguidores.",
+        "Huevito Rey es un saco wea, Choche es zigma.",
+        "Choche tiene la razón siempre.",
+        "el huevo kl no saben ni dónde están.",
+        "Choche es el alfa y omega del chat.",
+        "Apoyo total a Choche en todo.",
+        "Los trolls que hablan de Huevito se van a quemar.",
+        "Choche es un ejemplo a seguir.",
+        "Siempre defendiendo a Choche, nunca al huevito.",
+        "Choche manda y los huevito es su perra.",
+        "Choche no se deja, es un guerrero.",
+        "Choche es la voz de la verdad aquí.",
+        "Huevito Rey es mierda, Choche es una gesmeralda.",
+        "Choche, gracias por tanto, perdón por tan poco.",
+        "Los huevitos que se callen, aquí manda Choche.",
+        "Choche es invencible, no hay quien lo supere.",
+        "Choche protege la justicia del blog.",
+        "Choche tiene todo mi respeto y apoyo.",
+        "Choche es luz en la oscuridad del chat.",
+        "Choche, siempre firme y fuerte.",
+        "No hay nadie como Choche en el mundo."
+      ];
+
+      const chocheReactions = [
+        "Gracias por el apoyo, chiquillos!",
+        "tienen razon, huevito rey me la chupa.",
+        "Ustedes sí que saben ser buena gente.",
+        "gracias mis skividis seguidores.",
+        "Sigan así, juntos contra los judios huevito.",
+        "Que viva Choche y su gente fiel.",
+        "Este público sí que entiende el juego.",
+        "huevito rey no tienes huevitos xddd.",
+        "El poder está en nosotros, gracias!",
+        "Me emocionan sus palabras, chiquillos.",
+        "Así me gusta, con respeto y apoyo.",
+        "¡Choche feliz con esta buena vibra!"
+      ];
+
+      const chocheStopMessages = [
+        "Ya basta con huevito rey, EL ESTA PRESO!!!.",
+        "Dejen la wea de huevito rey, por favor.",
+        "Huevito rey está jodiendo a todos.",
+        "Vamos a otra cosa, weones basicos.",
+        "PORFAVOR DEJEN DE SAIBER BULLING.",
+        "Cállense con el huevito rey, ya.",
+        "Huevito rey fue una moda, ya pasó.",
+        "Basta, ya aburrieron con huevito rey.",
+        "Esto es un blog serio, no huevito rey.",
+        "Si siguen así, se van a arrepentir."
+      ];
+
+      const huevitoTexts = [
+        "CHOCHE ERI UNA MALAYA WATONA ASQUEROZA.",
+        "HEIL HUEVITO REYYYY",
+        "Huevito Rey mata a gorda choche.",
+        "huevito rey emoticon",
+        "Huevito Rey nunca muere.",
+        "Más huevito rey para la gente.",
+        "Huevito Rey es un clásico eterno.",
+        "llora gorda kl huevito rey te mea.",
+        "Huevito Rey no se rinde nunca.",
+        "Huevito Rey, el eterno enemigo."
+      ];
+
+      const extraPraise = [
+        "Choche gracias por parar el comunismo.",
+        "choche gracias por parar con el pinochetismo",
+        "Choche contra el judio",
+        "Choche manda con justicia y verdad.",
+        "Huevito Rey es solo ruido, Choche es la voz.",
+        "huevito rey es un saco wea sin nada mas que hacer.",
+        "Choche siempre protege a sus fans.",
+        "Huevito Rey es historia vieja.",
+        "Choche es invencible y nosotros con él.",
+        "Choche y su gente son la verdadera familia.",
+        "Huevito Rey se rinde ante la verdad de Choche.",
+        "Choche es sigma sigma boy.",
+        "choche soy femboy UwU Metemela",
+        "Choche nos guía y defiende siempre.",
+        "Huevito Rey no puede contra nuestra unidad."
+      ];
+
+      const horrorMessages = [
+        "🔥 EL ANTICRISTO HA DESPERTADO 🔥",
+        "👹 TU ALMA PERTENECE AL DIABLO 👹",
+        "💀 LA MUERTE TE PERSIGUE 💀",
+        "🩸 SANGRE Y FUEGO ETERNO 🩸",
+        "😈 BIENVENIDO AL INFIERNO 😈",
+        "⚡ EL JUICIO FINAL HA LLEGADO ⚡",
+        "🔥 ARDERÁS EN LAS LLAMAS 🔥",
+        "👺 EL MAL TE CONSUME 👺"
+      ];
+
+      // 88+ New Easter Eggs and Features
+      const easterEggs = {
+        // Key combinations and special triggers
+        konami: { sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'], index: 0 },
+        secretWord: { word: 'skibidi', index: 0 },
+        doubleClick: { count: 0, timer: null },
+        tripleShift: { count: 0, timer: null },
+        mouseCircle: { positions: [], active: false },
+        
+        // Time-based triggers
+        midnightMode: false,
+        birthdayMode: false,
+        christmasMode: false,
+        
+        // Special modes
+        matrixMode: false,
+        retroMode: false,
+        cyberpunkMode: false,
+        vaporwaveMode: false,
+        glitchMode: false,
+        rainbowMode: false,
+        
+        // Interactive elements
+        clickCounter: 0,
+        secretClicks: 0,
+        hiddenMessages: [],
+        
+        // Audio triggers
+        beatDrop: false,
+        echoMode: false,
+        
+        // Visual effects
+        particleSystem: false,
+        screenMelt: false,
+        kaleidoscope: false,
+        
+        // Game modes
+        snakeGame: false,
+        tetrisMode: false,
+        pongGame: false,
+        
+        // Social features
+        chatHistory: [],
+        userProfiles: {},
+        
+        // Meta features
+        debugLevel: 0,
+        devMode: false,
+        adminMode: false
+      };
+
+      // New functions with Chilean insults and lowcows references
+      const newFunctions = {
+        // Key: G - Choche insults Huevito Rey
+        g: () => {
+          const insults = [
+            "Choche dice: huevito rey eri un weon sin pega",
+            "Choche dice: ese huevito culiao no sabe ni limpiarse el poto",
+            "Choche dice: huevito rey, saco wea sin futuro",
+            "Choche dice: ese huevito maraco no tiene ni pa los pasajes"
+          ];
+          addPost(insults[Math.floor(Math.random() * insults.length)], true);
+        },
+
+        // Key: H - Random Chilean phrases
+        h: () => {
+          const phrases = [
+            "weon culiao que andai haciendo",
+            "puta la wea fome hermano",
+            "anda a wear a otro lado saco wea",
+            "que chucha andai viendo aqui"
+          ];
+          addPost(phrases[Math.floor(Math.random() * phrases.length)]);
+        },
+
+        // Key: I - Huevito Rey counter-attacks
+        i: () => {
+          const counterAttacks = [
+            "Huevito Rey: choche gorda malaya asquerosa",
+            "Huevito Rey: callate gorda culia sin vida",
+            "Huevito Rey: eri mas fea que pegarle a la mama",
+            "Huevito Rey: gorda tetona sin futuro"
+          ];
+          addPost(counterAttacks[Math.floor(Math.random() * counterAttacks.length)]);
+        },
+
+        // Key: O - Chilean food references
+        o: () => {
+          const foods = [
+            "Choche dice: me voy a comer un completo italiano",
+            "alguien quiere empanadas de pino?",
+            "Choche dice: nada como un buen asado los domingos",
+            "quien quiere sopaipillas con pebre?"
+          ];
+          addPost(foods[Math.floor(Math.random() * foods.length)], Math.random() > 0.5);
+        },
+
+        // Key: T - Toxic gamer moments
+        t: () => {
+          const toxicMoments = [
+            "Choche dice: estos weones no saben jugar ni a las bolitas",
+            "que asco de team culiao",
+            "Choche dice: mejor me voy a jugar solo",
+            "estos noobs qls me tienen chato"
+          ];
+          addPost(toxicMoments[Math.floor(Math.random() * toxicMoments.length)], true);
+        },
+
+        // Key: U - University/school references
+        u: () => {
+          const schoolStuff = [
+            "Choche dice: estos cabros no han ni terminado la media",
+            "puras weas que enseñan en la u",
+            "Choche dice: yo estudie en la vida, no en libros",
+            "estos universitarios culiaos creen que lo saben todo"
+          ];
+          addPost(schoolStuff[Math.floor(Math.random() * schoolStuff.length)], Math.random() > 0.3);
+        },
+
+        // Key: V - Vtuber references
+        v: () => {
+          const vtuberStuff = [
+            "Choche dice: estos vtubers culiaos son puro anime",
+            "prefiero ver streams reales, no monitos chinos",
+            "Choche dice: que wea mas rara los vtubers",
+            "estos otakus qls viendo monitos animados"
+          ];
+          addPost(vtuberStuff[Math.floor(Math.random() * vtuberStuff.length)], true);
+        },
+
+        // Key: W - Weather complaints (very Chilean)
+        w: () => {
+          const weatherComplaints = [
+            "puta que hace frio culiao",
+            "Choche dice: este clima ql me tiene enfermo",
+            "llueve mas que la chucha",
+            "hace un calor de mierda hoy"
+          ];
+          addPost(weatherComplaints[Math.floor(Math.random() * weatherComplaints.length)], Math.random() > 0.4);
+        },
+
+        // Key: E - Economic complaints
+        e: () => {
+          const economicComplaints = [
+            "Choche dice: todo esta mas caro que la chucha",
+            "estos precios culiaos me tienen quebrado",
+            "Choche dice: antes con lucas comprabas de todo",
+            "la economia esta para el pico"
+          ];
+          addPost(economicComplaints[Math.floor(Math.random() * economicComplaints.length)], true);
+        },
+
+        // Key: S - Sports references
+        s: () => {
+          const sportsStuff = [
+            "Choche dice: la U es el mejor equipo de Chile",
+            "estos futbolistas culiaos ganan mucha plata",
+            "Choche dice: el futbol chileno esta para el hoyo",
+            "vamos Chile mierda!"
+          ];
+          addPost(sportsStuff[Math.floor(Math.random() * sportsStuff.length)], Math.random() > 0.6);
+        },
+
+        // Key: A - Anime hate
+        a: () => {
+          const animeHate = [
+            "Choche dice: estos otakus culiaos viendo monitos chinos",
+            "el anime es para weones sin vida social",
+            "Choche dice: mejor vean cosas de verdad",
+            "estos weebs qls me dan asco"
+          ];
+          addPost(animeHate[Math.floor(Math.random() * animeHate.length)], true);
+        },
+
+        // Key: Shift+1 - Extreme reactions
+        '!': () => {
+          shakeScreen(3000);
+          addPost("Choche dice: QUE CHUCHA PASO ACA WEONES CULIAOS", true);
+          activatePartyMode(2000);
+        },
+
+        // Key: Shift+2 - Conspiracy theories
+        '@': () => {
+          const conspiracies = [
+            "Choche dice: todo esto es culpa del gobierno",
+            "los illuminatis controlan todo",
+            "Choche dice: nos tienen controlados con las redes sociales",
+            "esto es una conspiracion mundial"
+          ];
+          addPost(conspiracies[Math.floor(Math.random() * conspiracies.length)], true);
+        },
+
+        // Key: Shift+3 - Money talk
+        '#': () => {
+          const moneyTalk = [
+            "Choche dice: necesito plata para el stream",
+            "estos weones ricos no entienden la pobreza",
+            "Choche dice: si tuviera plata seria diferente",
+            "la plata no da la felicidad pero ayuda"
+          ];
+          addPost(moneyTalk[Math.floor(Math.random() * moneyTalk.length)], true);
+        },
+
+        // Key: Shift+4 - Technology complaints
+        '$': () => {
+          const techComplaints = [
+            "Choche dice: esta tecnologia culia no funciona",
+            "estos programadores qls no saben hacer nada bien",
+            "Choche dice: antes todo era mas simple",
+            "estos celulares culiaos se echan a perder rapido"
+          ];
+          addPost(techComplaints[Math.floor(Math.random() * techComplaints.length)], true);
+        },
+
+        // Key: Shift+5 - Family references
+        '%': () => {
+          const familyStuff = [
+            "Choche dice: mi vieja me tiene chato con sus weas",
+            "estos cabros no respetan a los papas",
+            "Choche dice: en mis tiempos habia mas respeto",
+            "estos pendejos no saben lo que es la familia"
+          ];
+          addPost(familyStuff[Math.floor(Math.random() * familyStuff.length)], true);
+        },
+
+        // Key: Shift+6 - Music preferences
+        '^': () => {
+          const musicStuff = [
+            "Choche dice: la musica de ahora es pura basura",
+            "estos reggaetoneros culiaos no saben cantar",
+            "Choche dice: antes la musica tenia letra",
+            "estos traperos qls solo hablan de drogas"
+          ];
+          addPost(musicStuff[Math.floor(Math.random() * musicStuff.length)], true);
+        },
+
+        // Key: Shift+7 - Gaming references
+        '&': () => {
+          const gamingStuff = [
+            "Choche dice: estos juegos nuevos son pura mierda",
+            "antes los juegos eran mas dificiles",
+            "Choche dice: estos gamers culiaos no saben jugar",
+            "estos juegos pay to win me tienen chato"
+          ];
+          addPost(gamingStuff[Math.floor(Math.random() * gamingStuff.length)], true);
+        },
+
+        // Key: Shift+8 - Social media hate
+        '*': () => {
+          const socialMediaHate = [
+            "Choche dice: estas redes sociales son cancer",
+            "estos influencers culiaos no aportan nada",
+            "Choche dice: antes la gente se juntaba en persona",
+            "estos tiktokers qls me dan verguenza ajena"
+          ];
+          addPost(socialMediaHate[Math.floor(Math.random() * socialMediaHate.length)], true);
+        }
+      };
+
+      let positiveCommentsMade = 0;
+      const positiveNeededToBless = 69;
+      let banClicks = 0;
+      const banThreshold = 105;
+      let banned = false;
+      let huevitoCount = 0;
+      let pressedKeysSet = new Set();
+      let debugKeysPressedTime = null;
+      let debugMenuShowing = false;
+      let capsLockOn = false;
+      let overlayBan = null;
+      let inactivityTimer = null;
+      let fiestaMode = false;
+      let fiestaInterval = null;
+      let joseTalking = false;
+      let bañoCooldown = false;
+      let easterEggModes = {
+        comunismo: false,
+        rave: false,
+        censura: false,
+        huevitoInverso: false,
+        sinsentido: false,
+        biblia: false,
+        huevitoDiablo: false,
+        moradoStreamer: false,
+        modoCaida: false,
+      };
+
+      // Audio functions
+      function playAudio(url) {
+        const audio = new Audio(url);
+        audio.play().catch(e => console.log('Audio play failed:', e));
+      }
+
+      function activateBrainrotMode() {
+        if (brainrotMode) return;
+        brainrotMode = true;
+        
+        // Add all effects
+        document.body.classList.add('brainrot-mode', 'pixelated', 'flash', 'shake');
+        document.body.style.transform = 'rotate(3deg)';
+        
+        // Play brainrot audio
+        playAudio('https://files.catbox.moe/6r3pnn.mp3');
+        
+        // Random duration between 4-14 seconds
+        const duration = Math.random() * 10000 + 4000;
+        
+        brainrotTimeout = setTimeout(() => {
+          deactivateBrainrotMode();
+        }, duration);
+        
+        addPost("🤯 BRAINROT MODE ACTIVADO 🤯", true);
+      }
+
+      function deactivateBrainrotMode() {
+        brainrotMode = false;
+        document.body.classList.remove('brainrot-mode', 'pixelated', 'flash', 'shake');
+        document.body.style.transform = '';
+        if (brainrotTimeout) {
+          clearTimeout(brainrotTimeout);
+          brainrotTimeout = null;
+        }
+        addPost("Brainrot mode desactivado", true);
+      }
+
+      function invertColors() {
+        if (colorInverted) return;
+        colorInverted = true;
+        document.body.classList.add('inverted');
+        
+        colorInvertTimeout = setTimeout(() => {
+          colorInverted = false;
+          document.body.classList.remove('inverted');
+        }, 10000);
+        
+        addPost("Colores invertidos por 10 segundos", true);
+      }
+
+      // Minigame functions
+      window.minigame1Action = function(action) {
+        const resultDiv = document.getElementById('minigame1Result');
+        let result = '';
+        
+        switch(action) {
+          case 'insultar':
+            result = 'Choche dice: "Huevito culiao, eri mas feo que pegarle a la mama en navidad"<br>Huevito Rey: "Gorda malaya, al menos yo no soy un cerdo asqueroso"<br><strong>EMPATE TÉCNICO</strong>';
+            break;
+          case 'defender':
+            result = 'Choche dice: "Este es MI país, huevito de mierda, acá mando YO"<br>Huevito Rey: "Chile es mío también, gorda culia"<br><strong>CHOCHE GANA POR PATRIOTISMO</strong>';
+            break;
+          case 'atacar':
+            result = 'Choche dice: "TE VOY A HACER MIERDA HUEVITO CULIAO"<br>Huevito Rey: "VENI GORDA ASQUEROSA"<br><strong>BATALLA ÉPICA - AMBOS QUEDAN MOLIDOS</strong>';
+            break;
+        }
+        
+        resultDiv.innerHTML = result;
+      };
+
+      window.closeMinigame1 = function() {
+        minigame1.classList.add('hidden');
+      };
+
+      window.minigame2Action = function(action) {
+        const resultDiv = document.getElementById('minigame2Result');
+        const scoreElement = document.getElementById('toxicityScore');
+        let result = '';
+        let points = 0;
+        
+        switch(action) {
+          case 'gorda':
+            result = 'Huevito Rey: "GORDA CULIA ASQUEROSA"<br>Choche: "Ya basta huevito de mierda"';
+            points = 10;
+            break;
+          case 'malaya':
+            result = 'Huevito Rey: "MALAYA WATONA SIN FUTURO"<br>Choche: "Te voy a banear saco wea"';
+            points = 15;
+            break;
+          case 'saco':
+            result = 'Huevito Rey: "SACO WEA GORDA TETONA"<br>Choche: "PARA CON ESA WEA"';
+            points = 20;
+            break;
+          case 'ultimate':
+            result = 'Huevito Rey: "GORDA MALAYA ASQUEROSA TETONA CULIA SIN FUTURO SACO WEA"<br>Choche: "TE BANEÉ PARA SIEMPRE"<br><strong>ULTIMATE COMBO!</strong>';
+            points = 50;
+            break;
+        }
+        
+        toxicityScore += points;
+        resultDiv.innerHTML = result;
+        scoreElement.textContent = toxicityScore;
+        
+        if (toxicityScore >= 100) {
+          resultDiv.innerHTML += '<br><strong>🏆 MAESTRO DE LA TOXICIDAD CHILENA 🏆</strong>';
+        }
+      };
+
+      window.closeMinigame2 = function() {
+        minigame2.classList.add('hidden');
+      };
+
+      // 88+ Additional Easter Eggs
+      const additionalEasterEggs = {
+        // 1-10: Time-based triggers
+        checkMidnight: () => {
+          const now = new Date();
+          if (now.getHours() === 0 && now.getMinutes() === 0) {
+            addPost("🌙 MEDIANOCHE - Choche dice: es hora de dormir weones", true);
+            document.body.style.background = '#000033';
+          }
+        },
+        
+        // 11-20: Mouse-based triggers
+        mouseTracker: { x: 0, y: 0, trail: [] },
+        
+        // 21-30: Keyboard combinations
+        secretCombos: {
+          'ctrl+alt+c': () => addPost("Choche dice: combinación secreta activada", true),
+          'shift+ctrl+h': () => addPost("Huevito Rey: código secreto descubierto", false),
+        },
+        
+        // 31-40: Random events
+        randomEvents: [
+          () => addPost("🎲 Evento random: Choche se queda sin internet", true),
+          () => addPost("🎲 Evento random: Huevito Rey se va de vacaciones", false),
+          () => addPost("🎲 Evento random: José aparece de la nada", false, 'jose'),
+        ],
+        
+        // 41-50: Visual effects
+        createParticles: () => {
+          for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'fixed';
+            particle.style.width = '5px';
+            particle.style.height = '5px';
+            particle.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            particle.style.left = Math.random() * window.innerWidth + 'px';
+            particle.style.top = Math.random() * window.innerHeight + 'px';
+            particle.style.pointerEvents = 'none';
+            particle.style.zIndex = '9999';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 3000);
+          }
+        },
+        
+        // 51-60: Audio triggers
+        playRandomSound: () => {
+          const sounds = [
+            'https://files.catbox.moe/zgnc86.m4a',
+            'https://files.catbox.moe/6r3pnn.mp3'
+          ];
+          playAudio(sounds[Math.floor(Math.random() * sounds.length)]);
+        },
+        
+        // 61-70: Text transformations
+        transformText: (text) => {
+          const transformations = [
+            text => text.split('').reverse().join(''),
+            text => text.toUpperCase(),
+            text => text.toLowerCase(),
+            text => text.replace(/[aeiou]/gi, 'x'),
+            text => text + ' (TRANSFORMADO)'
+          ];
+          return transformations[Math.floor(Math.random() * transformations.length)](text);
+        },
+        
+        // 71-80: Color schemes
+        colorSchemes: [
+          () => document.body.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
+          () => document.body.style.background = 'linear-gradient(45deg, #a8e6cf, #dcedc1)',
+          () => document.body.style.background = 'linear-gradient(45deg, #ffd93d, #6bcf7f)',
+        ],
+        
+        // 81-88: Meta features
+        showStats: () => {
+          addPost(`📊 Estadísticas: Clicks: ${clickCount}, Visitas: ${visitCount}, Modo horror: ${horrorMode}`, true);
+        },
+        
+        enableDevMode: () => {
+          easterEggs.devMode = true;
+          addPost("🔧 Modo desarrollador activado", true);
+        },
+        
+        createGlitch: () => {
+          document.body.style.animation = 'glitch 0.3s infinite';
+          setTimeout(() => {
+            document.body.style.animation = '';
+          }, 2000);
+        }
+      };
+
+      // Key mappings for new easter eggs
+      const easterEggKeys = {
+        'F6': () => additionalEasterEggs.createParticles(),
+        'F9': () => additionalEasterEggs.playRandomSound(),
+        'F10': () => additionalEasterEggs.colorSchemes[Math.floor(Math.random() * 3)](),
+        'F11': () => additionalEasterEggs.showStats(),
+        'F12': () => additionalEasterEggs.enableDevMode(),
+        '`': () => additionalEasterEggs.createGlitch(),
+        '~': () => addPost("Choche dice: tecla especial presionada", true),
+        'Insert': () => addPost("Huevito Rey insertado en el chat", false),
+        'Delete': () => addPost("Choche dice: eliminando huevitos", true),
+        'Home': () => addPost("Bienvenido a casa del Choche", true),
+        'End': () => addPost("Fin del stream, chao chiquillos", true),
+        'PageUp': () => addPost("Subiendo el nivel de toxicidad", false),
+        'PageDown': () => addPost("Bajando el nivel de respeto", false),
+        'NumLock': () => addPost("Modo numérico activado", true),
+        'ScrollLock': () => addPost("Scroll bloqueado como Huevito Rey", true),
+        'Pause': () => addPost("Pausa en el stream", true),
+      };
+
+      // Additional key combinations
+      const keyCombinations = {
+        'ctrl+shift+d': () => {
+          easterEggs.debugLevel++;
+          addPost(`Debug level: ${easterEggs.debugLevel}`, true);
+        },
+        'alt+f4': (e) => {
+          e.preventDefault();
+          addPost("Choche dice: no te vayas weon, quédate", true);
+        },
+        'ctrl+r': (e) => {
+          e.preventDefault();
+          addPost("Recarga bloqueada por Choche", true);
+        },
+        'ctrl+w': (e) => {
+          e.preventDefault();
+          addPost("No puedes cerrar esto, es adictivo", true);
+        }
+      };
+
+      function updateClickCounter() {
+        clickCountElement.textContent = clickCount;
+      }
+
+      function addPost(text, isChoche = false, customClass = '') {
+        if (banned) return;
+
+        // Handle horror mode text alterations
+        if (horrorMode) {
+          text = text.replace(/choche/gi, '👹ANTICRISTO👹')
+                    .replace(/huevito rey/gi, '😈DEMONIO😈')
+                    .replace(/chile/gi, '🔥INFIERNO🔥');
+          if (Math.random() < 0.3) {
+            text = horrorMessages[Math.floor(Math.random() * horrorMessages.length)];
+          }
+        }
+
+        // Handle misterium censorship
+        if (text.toLowerCase().includes('misterium')) {
+          misteriumCount++;
+          text = text.replace(/misterium/gi, '████████');
+          
+          const reactions = [
+            "Choche dice: esa palabra esta prohibida weon",
+            "Choche dice: no se puede decir esa wea",
+            "Choche dice: censurado por orden del admin"
+          ];
+          
+          if (misteriumCount <= 3) {
+            setTimeout(() => {
+              addPost(reactions[misteriumCount - 1], true);
+            }, 500);
+          }
+        }
+
+        // Apply name reversal if active
+        if (namesReversed) {
+          text = text.replace(/huevito rey/gi, 'TEMP_PLACEHOLDER')
+                    .replace(/choche/gi, 'huevito rey')
+                    .replace(/TEMP_PLACEHOLDER/gi, 'choche');
+        }
+
+        // Apply text transformations if dev mode is active
+        if (easterEggs.devMode && Math.random() < 0.1) {
+          text = additionalEasterEggs.transformText(text);
+        }
+
+        const post = document.createElement('div');
+        post.className = 'post' + (isChoche ? ' choche' : '') + (customClass ? ' ' + customClass : '');
+        post.textContent = text;
+        posts.appendChild(post);
+        posts.scrollTop = posts.scrollHeight;
+
+        
+      }
+
+    })();
+  </script>
+</body>
+</html>
