@@ -608,7 +608,24 @@
   <audio id="bgmusic" loop>
     <source src="background-music.mp3" type="audio/mpeg">
   </audio>
+  <!-- Justo antes del script principal -->
+ <audio id="miAudio" src="https://files.catbox.moe/zgnc86.m4a"></audio>
+<script>
+  (() => {
+    // ...tu código existente...
 
+    // Puedes poner esto cerca del inicio, después de las variables:
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'q' || event.key === 'Q') {
+        const audio = document.getElementById('miAudio');
+        audio.currentTime = 0;
+        audio.play();
+      }
+    });
+
+    // ...resto de tu código...
+  })();
+</script>
   <script>
     (() => {
       const posts = document.getElementById('posts');
@@ -1011,16 +1028,7 @@
         moradoStreamer: false,
         modoCaida: false,
       };
-<audio id="miAudio" src="https://files.catbox.moe/zgnc86.m4a"></audio>
-<script>
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'q' || event.key === 'Q') {
-      const audio = document.getElementById('miAudio');
-      audio.currentTime = 0;
-      audio.play();
-    }
-  });
-</script>
+
       function updateClickCounter() {
         clickCountElement.textContent = clickCount;
       }
