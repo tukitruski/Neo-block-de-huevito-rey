@@ -1,1 +1,3 @@
-
+git rm "debate,menu"
+git commit -m "Eliminar archivo debate,menu"
+git push
