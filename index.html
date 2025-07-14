@@ -42,31 +42,6 @@
       100% { background-color: white; }
     }
 
-    .pixelated {
-      image-rendering: pixelated;
-      filter: blur(2px) contrast(150%);
-    }
-
-    .inverted {
-      filter: invert(1) hue-rotate(180deg);
-    }
-
-    .rotated {
-      transform: rotate(5deg);
-    }
-
-    .brainrot-mode {
-      animation: brainrot-effects 0.2s infinite;
-    }
-
-    @keyframes brainrot-effects {
-      0% { transform: rotate(-2deg) scale(1.02); filter: hue-rotate(0deg) saturate(150%); }
-      25% { transform: rotate(1deg) scale(0.98); filter: hue-rotate(90deg) saturate(200%); }
-      50% { transform: rotate(2deg) scale(1.01); filter: hue-rotate(180deg) saturate(100%); }
-      75% { transform: rotate(-1deg) scale(0.99); filter: hue-rotate(270deg) saturate(175%); }
-      100% { transform: rotate(0deg) scale(1); filter: hue-rotate(360deg) saturate(150%); }
-    }
-
     .container {
       max-width: 800px;
       margin: 0 auto;
@@ -490,53 +465,6 @@
       padding-bottom: 5px;
       border-bottom: 1px solid #333;
     }
-
-    #minigame1, #minigame2 {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: white;
-      z-index: 1008;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    #minigame1.hidden, #minigame2.hidden {
-      display: none;
-    }
-
-    .minigame-title {
-      font-size: 32px;
-      margin-bottom: 30px;
-      color: #ff6b6b;
-    }
-
-    .minigame-content {
-      font-size: 18px;
-      max-width: 600px;
-      line-height: 1.6;
-    }
-
-    .minigame-button {
-      padding: 15px 30px;
-      background: #ff6b6b;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 10px;
-    }
-
-    .minigame-button:hover {
-      background: #ff5252;
-    }
   </style>
 </head>
 <body>
@@ -559,10 +487,6 @@
         <li>Presiona F para modo fiesta</li>
         <li>Presiona ENTER para modo libre (escribir comentarios)</li>
         <li>Escribe "huevito" para abrir el menú debug</li>
-        <li>Presiona F7 y F8 para minijuegos especiales</li>
-        <li>Presiona Q para audio especial</li>
-        <li>Presiona 5 para invertir colores</li>
-        <li>Escribe "brainrot mode" en modo libre para efectos especiales</li>
       </ul>
     </div>
 
@@ -681,39 +605,9 @@
     </div>
   </div>
 
-  <div id="minigame1" class="hidden">
-    <div class="minigame-title">🇨🇱 BATALLA DE LOWCOWS CHILENOS 🇨🇱</div>
-    <div class="minigame-content">
-      <h3>Choche007 vs Huevito Rey - Duelo Final</h3>
-      <p>Choche dice: "Huevito culiao, llegó la hora de que sepas quién manda en este país de mierda"</p>
-      <p>Huevito Rey: "Gorda malaya asquerosa, te voy a hacer mierda como siempre"</p>
-      <div style="margin: 30px 0;">
-        <button class="minigame-button" onclick="minigame1Action('insultar')">Insultar como Choche</button>
-        <button class="minigame-button" onclick="minigame1Action('defender')">Defender Chile</button>
-        <button class="minigame-button" onclick="minigame1Action('atacar')">Atacar con todo</button>
-      </div>
-      <div id="minigame1Result"></div>
-      <button class="minigame-button" onclick="closeMinigame1()" style="background: #666;">Salir</button>
-    </div>
-  </div>
-
-  <div id="minigame2" class="hidden">
-    <div class="minigame-title">🥚 HUEVITO REY SIMULATOR 🥚</div>
-    <div class="minigame-content">
-      <h3>Conviértete en el Huevito Rey</h3>
-      <p>Eres Huevito Rey y debes molestar a Choche con insultos chilenos</p>
-      <div style="margin: 30px 0;">
-        <button class="minigame-button" onclick="minigame2Action('gorda')">Llamar "gorda" a Choche</button>
-        <button class="minigame-button" onclick="minigame2Action('malaya')">Decir "malaya asquerosa"</button>
-        <button class="minigame-button" onclick="minigame2Action('saco')">Insultar "saco wea"</button>
-        <button class="minigame-button" onclick="minigame2Action('ultimate')">INSULTO ULTIMATE</button>
-      </div>
-      <div id="minigame2Result"></div>
-      <div id="minigame2Score">Puntos de Toxicidad: <span id="toxicityScore">0</span></div>
-      <button class="minigame-button" onclick="closeMinigame2()" style="background: #666;">Salir</button>
-    </div>
-  </div>
-
+  <audio id="bgmusic" loop>
+    <source src="background-music.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     (() => {
@@ -730,8 +624,6 @@
       const loadingScreen = document.getElementById('loadingScreen');
       const rpgGame = document.getElementById('rpgGame');
       const whiteScreen = document.getElementById('whiteScreen');
-      const minigame1 = document.getElementById('minigame1');
-      const minigame2 = document.getElementById('minigame2');
 
       let clickCount = 0;
       let positiveCount = 0;
@@ -764,11 +656,6 @@
       let whiteScreenActive = false;
       let mCooldown = false;
       let playerDefenseDownTurns = 0;
-      let brainrotMode = false;
-      let brainrotTimeout = null;
-      let colorInverted = false;
-      let colorInvertTimeout = null;
-      let toxicityScore = 0;
 
       // Visit counter
       let visitCount = localStorage.getItem('chocheVisitCount') || 0;
@@ -890,57 +777,6 @@
         "👺 EL MAL TE CONSUME 👺"
       ];
 
-      // 88+ New Easter Eggs and Features
-      const easterEggs = {
-        // Key combinations and special triggers
-        konami: { sequence: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'], index: 0 },
-        secretWord: { word: 'skibidi', index: 0 },
-        doubleClick: { count: 0, timer: null },
-        tripleShift: { count: 0, timer: null },
-        mouseCircle: { positions: [], active: false },
-        
-        // Time-based triggers
-        midnightMode: false,
-        birthdayMode: false,
-        christmasMode: false,
-        
-        // Special modes
-        matrixMode: false,
-        retroMode: false,
-        cyberpunkMode: false,
-        vaporwaveMode: false,
-        glitchMode: false,
-        rainbowMode: false,
-        
-        // Interactive elements
-        clickCounter: 0,
-        secretClicks: 0,
-        hiddenMessages: [],
-        
-        // Audio triggers
-        beatDrop: false,
-        echoMode: false,
-        
-        // Visual effects
-        particleSystem: false,
-        screenMelt: false,
-        kaleidoscope: false,
-        
-        // Game modes
-        snakeGame: false,
-        tetrisMode: false,
-        pongGame: false,
-        
-        // Social features
-        chatHistory: [],
-        userProfiles: {},
-        
-        // Meta features
-        debugLevel: 0,
-        devMode: false,
-        adminMode: false
-      };
-
       // New functions with Chilean insults and lowcows references
       const newFunctions = {
         // Key: G - Choche insults Huevito Rey
@@ -955,8 +791,7 @@
         },
 
         // Key: H - Random Chilean phrases
-        h: () => {
-          const phrases = [
+        h: () => {const phrases = [
             "weon culiao que andai haciendo",
             "puta la wea fome hermano",
             "anda a wear a otro lado saco wea",
@@ -1177,250 +1012,6 @@
         modoCaida: false,
       };
 
-      // Audio functions
-      function playAudio(url) {
-        const audio = new Audio(url);
-        audio.play().catch(e => console.log('Audio play failed:', e));
-      }
-
-      function activateBrainrotMode() {
-        if (brainrotMode) return;
-        brainrotMode = true;
-        
-        // Add all effects
-        document.body.classList.add('brainrot-mode', 'pixelated', 'flash', 'shake');
-        document.body.style.transform = 'rotate(3deg)';
-        
-        // Play brainrot audio
-        playAudio('https://files.catbox.moe/6r3pnn.mp3');
-        
-        // Random duration between 4-14 seconds
-        const duration = Math.random() * 10000 + 4000;
-        
-        brainrotTimeout = setTimeout(() => {
-          deactivateBrainrotMode();
-        }, duration);
-        
-        addPost("🤯 BRAINROT MODE ACTIVADO 🤯", true);
-      }
-
-      function deactivateBrainrotMode() {
-        brainrotMode = false;
-        document.body.classList.remove('brainrot-mode', 'pixelated', 'flash', 'shake');
-        document.body.style.transform = '';
-        if (brainrotTimeout) {
-          clearTimeout(brainrotTimeout);
-          brainrotTimeout = null;
-        }
-        addPost("Brainrot mode desactivado", true);
-      }
-
-      function invertColors() {
-        if (colorInverted) return;
-        colorInverted = true;
-        document.body.classList.add('inverted');
-        
-        colorInvertTimeout = setTimeout(() => {
-          colorInverted = false;
-          document.body.classList.remove('inverted');
-        }, 10000);
-        
-        addPost("Colores invertidos por 10 segundos", true);
-      }
-
-      // Minigame functions
-      window.minigame1Action = function(action) {
-        const resultDiv = document.getElementById('minigame1Result');
-        let result = '';
-        
-        switch(action) {
-          case 'insultar':
-            result = 'Choche dice: "Huevito culiao, eri mas feo que pegarle a la mama en navidad"<br>Huevito Rey: "Gorda malaya, al menos yo no soy un cerdo asqueroso"<br><strong>EMPATE TÉCNICO</strong>';
-            break;
-          case 'defender':
-            result = 'Choche dice: "Este es MI país, huevito de mierda, acá mando YO"<br>Huevito Rey: "Chile es mío también, gorda culia"<br><strong>CHOCHE GANA POR PATRIOTISMO</strong>';
-            break;
-          case 'atacar':
-            result = 'Choche dice: "TE VOY A HACER MIERDA HUEVITO CULIAO"<br>Huevito Rey: "VENI GORDA ASQUEROSA"<br><strong>BATALLA ÉPICA - AMBOS QUEDAN MOLIDOS</strong>';
-            break;
-        }
-        
-        resultDiv.innerHTML = result;
-      };
-
-      window.closeMinigame1 = function() {
-        minigame1.classList.add('hidden');
-      };
-
-      window.minigame2Action = function(action) {
-        const resultDiv = document.getElementById('minigame2Result');
-        const scoreElement = document.getElementById('toxicityScore');
-        let result = '';
-        let points = 0;
-        
-        switch(action) {
-          case 'gorda':
-            result = 'Huevito Rey: "GORDA CULIA ASQUEROSA"<br>Choche: "Ya basta huevito de mierda"';
-            points = 10;
-            break;
-          case 'malaya':
-            result = 'Huevito Rey: "MALAYA WATONA SIN FUTURO"<br>Choche: "Te voy a banear saco wea"';
-            points = 15;
-            break;
-          case 'saco':
-            result = 'Huevito Rey: "SACO WEA GORDA TETONA"<br>Choche: "PARA CON ESA WEA"';
-            points = 20;
-            break;
-          case 'ultimate':
-            result = 'Huevito Rey: "GORDA MALAYA ASQUEROSA TETONA CULIA SIN FUTURO SACO WEA"<br>Choche: "TE BANEÉ PARA SIEMPRE"<br><strong>ULTIMATE COMBO!</strong>';
-            points = 50;
-            break;
-        }
-        
-        toxicityScore += points;
-        resultDiv.innerHTML = result;
-        scoreElement.textContent = toxicityScore;
-        
-        if (toxicityScore >= 100) {
-          resultDiv.innerHTML += '<br><strong>🏆 MAESTRO DE LA TOXICIDAD CHILENA 🏆</strong>';
-        }
-      };
-
-      window.closeMinigame2 = function() {
-        minigame2.classList.add('hidden');
-      };
-
-      // 88+ Additional Easter Eggs
-      const additionalEasterEggs = {
-        // 1-10: Time-based triggers
-        checkMidnight: () => {
-          const now = new Date();
-          if (now.getHours() === 0 && now.getMinutes() === 0) {
-            addPost("🌙 MEDIANOCHE - Choche dice: es hora de dormir weones", true);
-            document.body.style.background = '#000033';
-          }
-        },
-        
-        // 11-20: Mouse-based triggers
-        mouseTracker: { x: 0, y: 0, trail: [] },
-        
-        // 21-30: Keyboard combinations
-        secretCombos: {
-          'ctrl+alt+c': () => addPost("Choche dice: combinación secreta activada", true),
-          'shift+ctrl+h': () => addPost("Huevito Rey: código secreto descubierto", false),
-        },
-        
-        // 31-40: Random events
-        randomEvents: [
-          () => addPost("🎲 Evento random: Choche se queda sin internet", true),
-          () => addPost("🎲 Evento random: Huevito Rey se va de vacaciones", false),
-          () => addPost("🎲 Evento random: José aparece de la nada", false, 'jose'),
-        ],
-        
-        // 41-50: Visual effects
-        createParticles: () => {
-          for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.style.position = 'fixed';
-            particle.style.width = '5px';
-            particle.style.height = '5px';
-            particle.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            particle.style.left = Math.random() * window.innerWidth + 'px';
-            particle.style.top = Math.random() * window.innerHeight + 'px';
-            particle.style.pointerEvents = 'none';
-            particle.style.zIndex = '9999';
-            document.body.appendChild(particle);
-            
-            setTimeout(() => particle.remove(), 3000);
-          }
-        },
-        
-        // 51-60: Audio triggers
-        playRandomSound: () => {
-          const sounds = [
-            'https://files.catbox.moe/zgnc86.m4a',
-            'https://files.catbox.moe/6r3pnn.mp3'
-          ];
-          playAudio(sounds[Math.floor(Math.random() * sounds.length)]);
-        },
-        
-        // 61-70: Text transformations
-        transformText: (text) => {
-          const transformations = [
-            text => text.split('').reverse().join(''),
-            text => text.toUpperCase(),
-            text => text.toLowerCase(),
-            text => text.replace(/[aeiou]/gi, 'x'),
-            text => text + ' (TRANSFORMADO)'
-          ];
-          return transformations[Math.floor(Math.random() * transformations.length)](text);
-        },
-        
-        // 71-80: Color schemes
-        colorSchemes: [
-          () => document.body.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4)',
-          () => document.body.style.background = 'linear-gradient(45deg, #a8e6cf, #dcedc1)',
-          () => document.body.style.background = 'linear-gradient(45deg, #ffd93d, #6bcf7f)',
-        ],
-        
-        // 81-88: Meta features
-        showStats: () => {
-          addPost(`📊 Estadísticas: Clicks: ${clickCount}, Visitas: ${visitCount}, Modo horror: ${horrorMode}`, true);
-        },
-        
-        enableDevMode: () => {
-          easterEggs.devMode = true;
-          addPost("🔧 Modo desarrollador activado", true);
-        },
-        
-        createGlitch: () => {
-          document.body.style.animation = 'glitch 0.3s infinite';
-          setTimeout(() => {
-            document.body.style.animation = '';
-          }, 2000);
-        }
-      };
-
-      // Key mappings for new easter eggs
-      const easterEggKeys = {
-        'F6': () => additionalEasterEggs.createParticles(),
-        'F9': () => additionalEasterEggs.playRandomSound(),
-        'F10': () => additionalEasterEggs.colorSchemes[Math.floor(Math.random() * 3)](),
-        'F11': () => additionalEasterEggs.showStats(),
-        'F12': () => additionalEasterEggs.enableDevMode(),
-        '`': () => additionalEasterEggs.createGlitch(),
-        '~': () => addPost("Choche dice: tecla especial presionada", true),
-        'Insert': () => addPost("Huevito Rey insertado en el chat", false),
-        'Delete': () => addPost("Choche dice: eliminando huevitos", true),
-        'Home': () => addPost("Bienvenido a casa del Choche", true),
-        'End': () => addPost("Fin del stream, chao chiquillos", true),
-        'PageUp': () => addPost("Subiendo el nivel de toxicidad", false),
-        'PageDown': () => addPost("Bajando el nivel de respeto", false),
-        'NumLock': () => addPost("Modo numérico activado", true),
-        'ScrollLock': () => addPost("Scroll bloqueado como Huevito Rey", true),
-        'Pause': () => addPost("Pausa en el stream", true),
-      };
-
-      // Additional key combinations
-      const keyCombinations = {
-        'ctrl+shift+d': () => {
-          easterEggs.debugLevel++;
-          addPost(`Debug level: ${easterEggs.debugLevel}`, true);
-        },
-        'alt+f4': (e) => {
-          e.preventDefault();
-          addPost("Choche dice: no te vayas weon, quédate", true);
-        },
-        'ctrl+r': (e) => {
-          e.preventDefault();
-          addPost("Recarga bloqueada por Choche", true);
-        },
-        'ctrl+w': (e) => {
-          e.preventDefault();
-          addPost("No puedes cerrar esto, es adictivo", true);
-        }
-      };
-
       function updateClickCounter() {
         clickCountElement.textContent = clickCount;
       }
@@ -1463,20 +1054,811 @@
                     .replace(/TEMP_PLACEHOLDER/gi, 'choche');
         }
 
-        // Apply text transformations if dev mode is active
-        if (easterEggs.devMode && Math.random() < 0.1) {
-          text = additionalEasterEggs.transformText(text);
-        }
-
         const post = document.createElement('div');
         post.className = 'post' + (isChoche ? ' choche' : '') + (customClass ? ' ' + customClass : '');
         post.textContent = text;
         posts.appendChild(post);
         posts.scrollTop = posts.scrollHeight;
 
-        
+        applyEasterEggEffects(post, text);
       }
 
+      function applyEasterEggEffects(post, text) {
+        if (easterEggModes.censura) {
+          post.textContent = post.textContent.replace(/huevito/gi, '████').replace(/choche/gi, '████').replace(/rey/gi, '████').replace(/comunismo/gi, '████').replace(/pinochet/gi, '████').replace(/allende/gi, '████').replace(/jose/gi, '████').replace(/hernandez/gi, '████');
+        }
+
+        if (easterEggModes.huevitoInverso && !post.classList.contains('choche')) {
+          post.textContent = "Choche dice: Huevito Rey, ¡vete a la puta mierda";
+          post.classList.add('choche');
+        }
+
+        if (easterEggModes.sinsentido) {
+          const sinsentidoPhrases = [
+            "El sol se derrite en la luna, huevito skibidi toilet dop.",
+            "Choche perdió el camino, pero sigue hablando.",
+            "Huevito Rey nunca fue pedofilo!!!1!.",
+            "Esto lo hiso mateo tmb.",
+            "Nada tiene sentido y todo es huevito.",
+          ];
+          post.textContent = sinsentidoPhrases[Math.floor(Math.random()*sinsentidoPhrases.length)];
+        }
+
+        if (easterEggModes.biblia) {
+          const bibliaPhrases = [
+            "Y Choche dijo: 'No toleraré más huevitos en mi reino'.",
+            "En el principio era el Choche, y el Choche era bueno.",
+            "Chile es lo que importa, nuestra cultura, que seria de nosotros sin guerra",
+            "Amad a Choche como a vosotros mismos.",
+            "No temáis a Huevito, porque Choche os protegerá.",
+          ];
+          post.textContent = bibliaPhrases[Math.floor(Math.random()*bibliaPhrases.length)];
+          post.classList.add('choche');
+        }
+
+        if (easterEggModes.huevitoDiablo) {
+          post.textContent = "🔥 ¡Huevito Diablo ha despertado! 🔥";
+          post.classList.add('choche');
+        }
+
+        if (easterEggModes.moradoStreamer) {
+          document.body.style.background = '#7D3C98';
+          post.style.background = '#D7BDE2';
+          post.style.color = 'white';
+        }
+
+        if (easterEggModes.modoCaida) {
+          post.textContent = "⚠️ El stream se cayó, pero ya vuelvo.";
+          post.classList.add('choche');
+        }
+      }
+
+      function shakeScreen(duration = 1500) {
+        if (banned) return;
+        document.body.classList.add('shake');
+        setTimeout(() => {
+          document.body.classList.remove('shake');
+        }, duration);
+      }
+
+      function showBanMessage(text) {
+        if (overlayBan) return;
+        overlayBan = document.createElement('div');
+        overlayBan.id = 'overlayBan';
+        overlayBan.textContent = text;
+        document.body.appendChild(overlayBan);
+      }
+
+      function removeBanMessage() {
+        if (!overlayBan) return;
+        overlayBan.remove();
+        overlayBan = null;
+      }
+
+      function resetInactivityTimer() {
+        lastActivity = Date.now();
+        if(inactivityTimer) clearTimeout(inactivityTimer);
+        if (banned || blocked) return;
+        inactivityTimer = setTimeout(() => {
+          blockPageDueInactivity();
+        }, 60000);
+      }
+
+      function blockPageDueInactivity() {
+        blocked = true;
+        addPost("NO HICISTE NADA POR EL DIOS CHOCHE007", true);
+        showBanMessage("NO HICISTE NADA POR EL DIOS CHOCHE007");
+        addPost('Choche dice: "bueno chicos hasta acá el live, gracias a nadie y nos vemos"', true);
+        window.removeEventListener('keydown', keyDownHandler);
+        window.removeEventListener('keyup', keyUpHandler);
+        window.removeEventListener('click', clickHandler);
+      }
+
+      function blockPageDueBan() {
+        banned = true;
+        // 20% chance of forgiveness
+        if (Math.random() < 0.2) {
+          setTimeout(() => {
+            addPost("Choche dice: tu debes servir para mi y ahora escribiras 25 veces viva choche007 huevito rey es weon", true);
+            removeBanMessage();
+            forgivenessMode = true;
+            forgivenessCount = 0;
+            banned = false;
+            blocked = false;
+          }, 2000);
+        } else {
+          showBanMessage("choche dios te ha baneado, no tienes nada que hacer acá");
+          window.removeEventListener('keydown', keyDownHandler);
+          window.removeEventListener('keyup', keyUpHandler);
+          window.removeEventListener('click', clickHandler);
+        }
+      }
+
+      function resetDebugMenuTimer() {
+        if(debugMenuTimer) clearTimeout(debugMenuTimer);
+        debugMenuTimer = setTimeout(() => {
+          hideDebugMenu();
+        }, 30000);
+      }
+
+      function showDebugMenu() {
+        debugMenu.classList.remove('hidden');
+        debugMenuVisible = true;
+        resetDebugMenuTimer();
+      }
+
+      function hideDebugMenu() {
+        debugMenu.classList.add('hidden');
+        debugMenuVisible = false;
+      }
+
+      function toggleFreeMode() {
+        if (forgivenessMode) return;
+        freeModeActive = !freeModeActive;
+        if (freeModeActive) {
+          freeMode.classList.remove('hidden');
+          freeModeInput.focus();
+        } else {
+          freeMode.classList.add('hidden');
+          freeModeInput.value = '';
+        }
+      }
+
+      function showNewsOverlay() {
+        newsOverlay.classList.remove('hidden');
+        setTimeout(() => {
+          newsOverlay.classList.add('hidden');
+        }, 10000);
+      }
+
+      function showDonationMenu() {
+        donationMenu.classList.remove('hidden');
+        const reactions = [
+          "wena weon",
+          "QUE CHUHA, MIRA MAMA ME DONARON",
+          "gracias por la plata weon",
+          "estos weones si que saben donar",
+          "WENA CULIAO GRACIAS"
+        ];
+        addPost(`Choche dice: ${reactions[Math.floor(Math.random() * reactions.length)]}`, true);
+        activatePartyMode(5000);
+        setTimeout(() => {
+          donationMenu.classList.add('hidden');
+        }, 3000);
+      }
+
+      function showExcelOverlay() {
+        excelOverlay.classList.remove('hidden');
+      }
+
+      function activatePartyMode(duration = null) {
+        if (fiestaMode) return;
+        fiestaMode = true;
+        fiestaInterval = setInterval(() => {
+          document.body.style.background = `hsl(${Math.floor(Math.random()*360)}, 80%, 70%)`;
+        }, 150);
+        if (duration) {
+          setTimeout(() => {
+            deactivatePartyMode();
+          }, duration);
+        }
+      }
+
+      function deactivatePartyMode() {
+        fiestaMode = false;
+        if (fiestaInterval) {
+          clearInterval(fiestaInterval);
+          fiestaInterval = null;
+        }
+        if (nightMode) {
+          document.body.style.background = '#1a1a1a';
+        } else if (horrorMode) {
+          // Keep horror background
+        } else {
+          document.body.style.background = '#fdf6e3';
+        }
+      }
+
+      function activateAltMode() {
+        altModeActive = true;
+        secretClickCounter = 0;
+        document.body.style.background = `hsl(${Math.floor(Math.random()*360)}, 70%, 60%)`;
+        altModeTimer = setTimeout(() => {
+          altModeActive = false;
+          document.body.style.background = '#fdf6e3';
+        }, 10000);
+      }
+
+      function showLoadingScreen() {
+        if (forgivenessMode) return;
+        loadingScreen.classList.remove('hidden');
+        const loadTime = Math.random() * 7000 + 2000;
+        setTimeout(() => {
+          loadingScreen.classList.add('hidden');
+          startRPGGame();
+        }, loadTime);
+      }
+
+      function startRPGGame() {
+        playerMaxHP = Math.floor(Math.random() * 11) + 8;
+        playerCurrentHP = playerMaxHP;
+        enemyMaxHP = Math.floor(Math.random() * 11) + 8;
+        enemyCurrentHP = enemyMaxHP;
+        playerAttackBoost = false;
+        playerDefenseDown = false;
+        playerDefenseDownTurns = 0;
+        enemyAttackBoost = false;
+        enemyDefenseDown = false;
+        activatePartyMode();
+        updateRPGUI();
+        clearActionLog();
+        addActionLog("¡La batalla comienza!");
+        rpgGame.classList.remove('hidden');
+      }
+
+      function updateRPGUI() {
+        document.getElementById('playerHealth').textContent = `HP: ${playerCurrentHP}/${playerMaxHP}`;
+        document.getElementById('enemyHealth').textContent = `HP: ${enemyCurrentHP}/${enemyMaxHP}`;
+        const playerHealthPercent = (playerCurrentHP / playerMaxHP) * 100;
+        const enemyHealthPercent = (enemyCurrentHP / enemyMaxHP) * 100;
+        document.getElementById('playerHealthFill').style.width = `${playerHealthPercent}%`;
+        document.getElementById('enemyHealthFill').style.width = `${enemyHealthPercent}%`;
+      }
+
+      function addActionLog(message) {
+        const actionLog = document.getElementById('actionLog');
+        const logEntry = document.createElement('div');
+        logEntry.className = 'log-entry';
+        logEntry.textContent = message;
+        actionLog.appendChild(logEntry);
+        actionLog.scrollTop = actionLog.scrollHeight;
+      }
+
+      function clearActionLog() {
+        const actionLog = document.getElementById('actionLog');
+        actionLog.innerHTML = '<div style="text-decoration: underline; margin-bottom: 10px;">Registro de Batalla</div>';
+      }
+
+      window.playerAction = function(action) {
+        if (playerCurrentHP <= 0 || enemyCurrentHP <= 0) return;
+
+        let damage = 0;
+        let message = "";
+
+        switch(action) {
+          case 'atacar':
+            damage = Math.floor(Math.random() * 4) + 2;
+            if (playerAttackBoost) damage += 2;
+            if (enemyDefenseDown) damage += 1;
+            message = `Choche ataca por ${damage} de daño`;
+            break;
+          case 'decir_verdad':
+            damage = Math.floor(Math.random() * 5) + 3;
+            if (enemyDefenseDown) damage += 1;
+            playerAttackBoost = true;
+            message = `Choche dice una verdad humillante y ataca por ${damage} de daño. ¡Ataque aumentado!`;
+            break;
+          case 'gritar':
+            enemyDefenseDown = true;
+            message = "Choche grita fuertemente. ¡La defensa de Huevito Rey se reduce!";
+            break;
+          case 'cura':
+            const healAmount = Math.floor(Math.random() * 6) + 1;
+            playerCurrentHP = Math.min(playerMaxHP, playerCurrentHP + healAmount);
+            message = `choche porcino se ha comido un completo como xanxo y se ha curado ${healAmount}`;
+            break;
+        }
+
+        if (damage > 0) {
+          enemyCurrentHP = Math.max(0, enemyCurrentHP - damage);
+        }
+
+        addActionLog(message);
+        updateRPGUI();
+
+        if (enemyCurrentHP <= 0) {
+          addActionLog("¡Choche gana!");
+          addActionLog("Choche dice: soy discapasitado y te gane igual");
+          setTimeout(() => {
+            endRPGGame();
+          }, 3000);
+          return;
+        }
+
+        setTimeout(() => {
+          enemyAction();
+        }, 1000);
+      };
+
+      function enemyAction() {
+        if (enemyCurrentHP <= 0 || playerCurrentHP <= 0) return;
+
+        // Check if enemy should heal (HP between 2-7, 50% chance)
+        if (enemyCurrentHP >= 2 && enemyCurrentHP <= 7 && Math.random() < 0.5) {
+          const healAmount = Math.floor(Math.random() * 6) + 2;
+          enemyCurrentHP = Math.min(enemyMaxHP, enemyCurrentHP + healAmount);
+          addActionLog(`huevito rey se come una piza de la basura como si fuese cuico kl y se recupera ${healAmount}`);
+          updateRPGUI();
+          
+          // Handle defense down turns
+          if (playerDefenseDownTurns > 0) {
+            playerDefenseDownTurns--;
+            if (playerDefenseDownTurns === 0) {
+              playerDefenseDown = false;
+              addActionLog("La defensa de Choche se restaura");
+            }
+          }
+          return;
+        }
+
+        const actions = ['atacar', 'webear', 'chantejear'];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        let damage = 0;
+        let message = "";
+
+        switch(action) {
+          case 'atacar':
+            damage = Math.floor(Math.random() * 4) + 2;
+            if (enemyAttackBoost) damage += 2;
+            if (playerDefenseDown) damage += 1;
+            message = `Huevito Rey ataca por ${damage} de daño`;
+            break;
+          case 'webear':
+            damage = Math.floor(Math.random() * 6) + 2;
+            if (playerDefenseDown) damage += 1;
+            enemyAttackBoost = true;
+            message = `Huevito Rey webea y ataca por ${damage} de daño. ¡Su ataque aumenta!`;
+            break;
+          case 'chantejear':
+            playerDefenseDown = true;
+            playerDefenseDownTurns = 2; // Now lasts 2 turns
+            message = "Huevito Rey chantajea a Choche. ¡Su defensa se reduce por 2 turnos!";
+            break;
+        }
+
+        if (damage > 0) {
+          playerCurrentHP = Math.max(0, playerCurrentHP - damage);
+        }
+
+        addActionLog(message);
+        updateRPGUI();
+
+        if (playerCurrentHP <= 0) {
+          addActionLog("¡Huevito Rey gana!");
+          addActionLog("Huevito Rey dice: gorda malaya asqueroza");
+          setTimeout(() => {
+            endRPGGame();
+          }, 3000);
+          return;
+        }
+
+        // Handle defense down turns
+        if (playerDefenseDownTurns > 0) {
+          playerDefenseDownTurns--;
+          if (playerDefenseDownTurns === 0) {
+            playerDefenseDown = false;
+            addActionLog("La defensa de Choche se restaura");
+          }
+        }
+      }
+
+      function endRPGGame() {
+        rpgGame.classList.add('hidden');
+        deactivatePartyMode();
+      }
+
+      function handleFreeModeInput(text) {
+        if (!text.trim()) return;
+
+        // Handle horror mode exit
+        if (horrorMode) {
+          if (text === "ODIO AL ANTI CRISTO, VIVA DIOS") {
+            horrorExitCount++;
+            addPost(`${horrorExitCount}/23: ${text}`);
+            if (horrorExitCount >= 23) {
+              horrorMode = false;
+              horrorExitCount = 0;
+              document.body.classList.remove('horror-mode');
+              document.body.style.background = '#fdf6e3';
+              addPost("Has salido del modo anticristo", true);
+            }
+          } else {
+            addPost("👹 DEBES ESCRIBIR EXACTAMENTE: ODIO AL ANTI CRISTO, VIVA DIOS 👹");
+          }
+          freeModeInput.value = '';
+          return;
+        }
+
+        // Handle forgiveness mode
+        if (forgivenessMode) {
+          if (text === "viva choche007 huevito rey es weon") {
+            forgivenessCount++;
+            addPost(`${forgivenessCount}/25: ${text}`);
+            if (forgivenessCount >= 25) {
+              addPost("¡Perdón completado! Reiniciando página...", true);
+              setTimeout(() => {
+                location.reload();
+              }, 2000);
+            }
+          } else {
+            addPost("Mensaje incorrecto. Debes escribir exactamente: viva choche007 huevito rey es weon");
+          }
+          freeModeInput.value = '';
+          return;
+        }
+
+        // Check for horror mode activation
+        if (text === "666") {
+          horrorMode = true;
+          horrorExitCount = 0;
+          document.body.classList.add('horror-mode');
+          addPost("🔥👹 MODO ANTICRISTO ACTIVADO 👹🔥", true);
+          addPost("Para salir debes escribir 23 veces: ODIO AL ANTI CRISTO, VIVA DIOS");
+          freeModeInput.value = '';
+          return;
+        }
+
+        // Handle "viva venezuela"
+        if (text.toLowerCase().includes('viva venezuela')) {
+          vivaVenezuelaCount++;
+          if (vivaVenezuelaCount === 1) {
+            addPost("Choche dice: ya me tienen chato estos venecos, di eso una vez mas y te baneo negrozolano", true);
+          } else if (vivaVenezuelaCount >= 2) {
+            addPost("Choche dice: TE DIJE QUE NO DIJERAS ESO MAS", true);
+            showBanMessage("BANEADO POR VENEZOLANO");
+            banned = true;
+            return;
+          }
+        }
+
+        // Check for Chilean nationalist trigger
+        if (text.toLowerCase().includes('chile')) {
+          addPost("Chilean nationalist: Chile, desde sus inicios con los mapuches, resultó ser una nación imposible de someter, tanto regional como globalmente. Comenzando con la guerra inca-mapuche, los mapuches lograron detener a los incas, que tontamente pensaron que podrían arrinconar a una de las civilizaciones más avanzadas de América. Aunque los mapuches no eran expansionistas, lograron detener la dominación inca. Los incas, un imperio expansionista, llegaron al final de su expansión gracias a los mapuches. Si derrotar a los incas era un logro significativo, los mapuches luego se enfrentarían al imperio español en las Américas. A pesar de la tecnología superior de España, los mapuches lucharon ferozmente, lo que llevó a casi tres siglos de guerra. Una figura notable fue Galvarino, quien, después de perder las manos, ató cuchillos a sus muñones y continuó resistiendo a los españoles. Su valentía se volvió legendaria, aunque finalmente fue ejecutado. Ambas guerras demostraron que los mapuches lucharon no para destruir sino para proteger su tierra y cultura, contrastando con los imperios expansionistas. Siglos después, la lucha de Chile por la soberanía condujo a su lucha por la independencia. A pesar de los conflictos internos, Chile se mantuvo unido contra el enemigo común, España. Después de varios intentos, Chile finalmente obtuvo la independencia el 12 de febrero de 1818 y ayudó a otros países como México y Perú en sus luchas independentistas. Chile luego se enfrentó a la Confederación Peruano-Boliviana, una gran amenaza para las Américas. Chile, junto con la facción restauracionista de Perú, triunfó en la Batalla de Yungay. Chile volvería a enfrentarse a con España después de un ataque a Valparaíso pero salió victorioso, ayudado por Perú. La guerra más importante de Chile vino con la Guerra del Pacífico, donde enfrentó a Perú y Bolivia por una disputa territorial. A pesar de los reveses iniciales, Chile salió victorioso, con notables actos de valentía como el abordaje del Huascar por parte de Arturo Prat. También se destaca la Batalla de Concepción, donde 77 soldados chilenos lucharon contra probabilidades abrumadoras, aguantando al enemigo durante días. Murieron hasta el último hombre, impulsados por el patriotismo y la fe. Esto desmiente la idea de que Gran Bretaña ayudó a Chile, ya que los británicos realmente vendieron armas a Perú. En 1895, Chile ayudó a Colombia a defenderse contra Estados Unidos, usando su barco \"The Emerald\" para repeler a las fuerzas estadounidenses. El lema militar de Chile, \"Siempre victorioso, nunca derrotado\", refleja su historia de triunfo, arraigada en valores de disciplina, honor y sacrificio. La guerra, aunque no forma parte de la cultura chilena, ha moldeado su identidad. Chile siempre ha creído que perder es peor que morir, y esta mentalidad les ha ayudado a ganar prácticamente todos los conflictos con pérdidas mínimas. Como dijo Emilio Körner, \"El chileno nació para ser soldado\". Chile no busca la guerra, sino que se defiende con el orgullo y el deber. Sin la guerra, Chile no se habría convertido en una nación fuerte e influyente en América. Los historiadores coinciden: si bien la guerra no es la cultura de Chile, sin ella, Chile no existiría.", false, 'chilean-nationalist');
+        } else {
+          addPost(text);
+        }
+
+        freeModeInput.value = '';
+      }
+
+      window.cerrarDebugMenu = hideDebugMenu;
+
+      window.startRuta = function(ruta) {
+        hideDebugMenu();
+        if(ruta === 'bueno') {
+          huevitoCount = 65;
+          positiveCommentsMade = 0;
+          addPost("DEBUG: Iniciando ruta Good Ending", true);
+        } else if (ruta === 'malo') {
+          huevitoCount = 98;
+          banClicks = 0;
+          banned = false;
+          addPost("DEBUG: Iniciando ruta Baneo", true);
+        } else if (ruta === 'inactivo') {
+          blocked = false;
+          addPost("DEBUG: Iniciando ruta Inactividad", true);
+          resetInactivityTimer();
+        }
+      };
+
+      function addHuevitoPost() {
+        if(banned || blocked || forgivenessMode) return;
+
+        huevitoCount++;
+        clickCount++;
+        banClicks++;
+        updateClickCounter();
+
+        // Handle alt mode secret counter
+        if (altModeActive) {
+          secretClickCounter++;
+          if (secretClickCounter >= 88) {
+            addPost("Choche dice: ok ok, si quieres pasarte a lo rapido esta wea ya esta saco wea", true);
+            showBanMessage("FINAL DE VELOCIDAD - ¡LO LOGRASTE!");
+            clearTimeout(altModeTimer);
+            altModeActive = false;
+            return;
+          }
+        }
+
+        let text = `Huevito Rey #${huevitoCount}: ${huevitoTexts[huevitoCount % huevitoTexts.length]}`;
+        if(capsLockOn) text = text.toUpperCase() + " !1!1";
+        addPost(text);
+
+        if(huevitoCount % 20 === 0) {
+          let msg = chocheStopMessages[Math.floor(Math.random() * chocheStopMessages.length)];
+          if(capsLockOn) msg = msg.toUpperCase() + " !1!1";
+          addPost(`Choche dice: ${msg}`, true);
+        }
+
+        if(huevitoCount === 69 && !bañoCooldown) {
+          if(Math.random() <= 0.4) {
+            bañoCooldown = true;
+            document.body.style.background = "yellow";
+            addPost("Choche dice: ya chiquillos me voy a mear al baño esperenme", true);
+            blocked = true;
+            setTimeout(() => {
+              document.body.style.background = "#fdf6e3";
+              blocked = false;
+              bañoCooldown = false;
+            }, 10000);
+          }
+        }
+
+        if(huevitoCount === 88) {
+          addPost("Choche dice: dejen de hablar de huevito rey, YO MANDO COMO HITLER, HITLER", true);
+          shakeScreen();
+        }
+
+        if(huevitoCount >= 100) {
+          addPost("Choche dice: DEJEN DE WEBEAR CON EL HUEVITO REY, SE VAN BANEADOS", true);
+          shakeScreen();
+        }
+
+        if(huevitoCount >= 105 && !banned) {
+          if(Math.random() < 0.4) {
+            addPost("TE LO DIJE, QUE PARARAS CON LA WEA DE HUEVITO REY, EL ESTÁ PRESO Y DEJA DE JODER", true);
+            blockPageDueBan();
+          }
+        }
+
+        resetInactivityTimer();
+      }
+
+      function addPositiveComment() {
+        if(banned || blocked || forgivenessMode) return;
+
+        let allPraises = [...positiveComments, ...extraPraise];
+        let msg = allPraises[Math.floor(Math.random() * allPraises.length)];
+        if(capsLockOn) msg = msg.toUpperCase() + " !1!1";
+        addPost(msg);
+
+        positiveCommentsMade++;
+
+        if(positiveCommentsMade % 10 === 0) {
+          let reaction = chocheReactions[Math.floor(Math.random() * chocheReactions.length)];
+          if(capsLockOn) reaction = reaction.toUpperCase() + " !1!1";
+          addPost(`Choche dice: ${reaction}`, true);
+        }
+
+        if(positiveCommentsMade >= positiveNeededToBless) {
+          addPost("Choche dice: que buen público me tocó, adiós chiquillos", true);
+          showBanMessage("CHOCHE DIOS TE BENDICE POR TU ACTO DE BONDAD");
+          blocked = true;
+        }
+
+        resetInactivityTimer();
+      }
+
+      function keyDownHandler(e) {
+        if(blocked || banned) return;
+        resetInactivityTimer();
+
+        // Handle free mode
+        if (freeModeActive) {
+          if (e.key === 'Enter') {
+            if (freeModeInput.value.trim()) {
+              handleFreeModeInput(freeModeInput.value);
+            } else {
+              toggleFreeMode();
+            }
+            return;
+          }
+          return; // Let the input handle other keys
+        }
+
+        if(e.key.toLowerCase() === huevitoSequence[huevitoIndex]) {
+          huevitoIndex++;
+          if(huevitoIndex >= huevitoSequence.length) {
+            huevitoIndex = 0;
+            showDebugMenu();
+          }
+        } else {
+          huevitoIndex = 0;
+        }
+
+        // Handle new functions
+        if (newFunctions[e.key]) {
+          newFunctions[e.key]();
+          return;
+        }
+
+        switch (e.key.toLowerCase()) {
+          case 'enter':
+            e.preventDefault();
+            toggleFreeMode();
+            break;
+          case ' ':
+            e.preventDefault();
+            addPositiveComment();
+            break;
+          case 'm':
+            if (!mCooldown) {
+              mCooldown = true;
+              if (e.key === 'm') {
+                // Add 5 huevito rey messages one by one
+                for (let i = 0; i < 5; i++) {
+                  setTimeout(() => {
+                    addHuevitoPost();
+                  }, i * 500);
+                }
+              } else if (e.key === 'M') {
+                easterEggModes.moradoStreamer = !easterEggModes.moradoStreamer;
+              }
+              setTimeout(() => {
+                mCooldown = false;
+              }, 5000);
+            }
+            break;
+          case 'n':
+            showNewsOverlay();
+            break;
+          case 'c':
+            addPost("Choche dice: ya chiquillos las reglas del chat", true);
+            break;
+          case '1':
+            addPost("Choche dice: primero está prohibido hablar de huevito rey, él está preso", true);
+            break;
+          case '2':
+            addPost("Choche dice: segundo, está también prohibido hablar de mysterium", true);
+            break;
+          case '3':
+            addPost("Choche dice: y tercera y última, está prohibido el comunismo y la política", true);
+            break;
+          case '4':
+            addPost("VIVA PINOCHET Y ALLENDE");
+            break;
+          case 'p':
+            addPost("Choche dice: DEJA DE HABLAR DE POLÍTICA, ambos son basura", true);
+            break;
+          case 'j':
+            if (!joseTalking) {
+              joseTalking = true;
+              joseGayCount++;
+              if (joseGayCount === 1) {
+                addPost("José Hernández: choche soy gay, no me discriminarás?", false, 'jose');
+                setTimeout(() => {
+                  addPost("Choche dice: saludos José, yo apoyo a los gays como tú", true);
+                  joseTalking = false;
+                }, 3000);
+              } else if (joseGayCount === 2) {
+                addPost("José Hernández: choche, long live gays", false, 'jose');
+                setTimeout(() => {
+                  addPost("Choche dice: I'm not gay but ok", true);
+                  joseTalking = false;
+                }, 4000);
+              }
+            }
+            break;
+          case 'f':
+            if (e.key === 'f') {
+              fiestaMode = !fiestaMode;
+              if (fiestaMode) {
+                activatePartyMode();
+              } else {
+                deactivatePartyMode();
+              }
+            }
+            break;
+          case 'q':
+            addPost("Choche dice: PAREN DE HABLAR DE HUEVITO REY", true);
+            break;
+          case 'l':
+            flashingMode = !flashingMode;
+            if (flashingMode) {
+              document.body.classList.add('flash');
+            } else {
+              document.body.classList.remove('flash');
+            }
+            easterEggModes.modoCaida = !easterEggModes.modoCaida;
+            addPost("Modo caída de stream activado");
+            break;
+          case 'escape':
+            showExcelOverlay();
+            break;
+          case 'alt':
+            activateAltMode();
+            break;
+          case 'capslock':
+            capsLockOn = !capsLockOn;
+            break;
+          case 'k':
+            easterEggModes.comunismo = !easterEggModes.comunismo;
+            addPost(`Modo comunismo ${easterEggModes.comunismo ? 'activado' : 'desactivado'}`);
+            break;
+          case 'r':
+            if (e.shiftKey) {
+              namesReversed = !namesReversed;
+              addPost(`Nombres ${namesReversed ? 'invertidos' : 'normales'}`);
+            } else {
+              easterEggModes.rave = !easterEggModes.rave;
+              addPost("Modo RAVE toggled");
+            }
+            break;
+          case 'x':
+            easterEggModes.censura = !easterEggModes.censura;
+            addPost("Modo Censura toggled");
+            break;
+          case 'y':
+            easterEggModes.huevitoInverso = !easterEggModes.huevitoInverso;
+            addPost("Modo Huevito Inverso toggled");
+            break;
+          case 'z':
+            easterEggModes.sinsentido = !easterEggModes.sinsentido;
+            addPost("Modo Sinsentido toggled");
+            break;
+          case 'b':
+            easterEggModes.biblia = !easterEggModes.biblia;
+            addPost("Modo Biblia toggled");
+            break;
+          case 'd':
+            easterEggModes.huevitoDiablo = !easterEggModes.huevitoDiablo;
+            addPost("Huevito Diablo se ha liberado! 🔥🔥🔥");
+            break;
+        }
+
+        // Handle F3 for night mode
+        if (e.key === 'F3') {
+          nightMode = !nightMode;
+          if (nightMode) {
+            document.body.classList.add('night-mode');
+          } else {
+            document.body.classList.remove('night-mode');
+          }
+        }
+
+        // Handle F5 for white screen
+        if (e.key === 'F5') {
+          e.preventDefault();
+          whiteScreenActive = !whiteScreenActive;
+          if (whiteScreenActive) {
+            whiteScreen.classList.remove('hidden');
+          } else {
+            whiteScreen.classList.add('hidden');
+          }
+        }
+
+        // Handle Ctrl key for donations
+        if (e.ctrlKey && e.key === 'Control') {
+          showDonationMenu();
+        }
+
+        // Handle Fn key for RPG minigame
+        if (e.key === 'F1') {
+          showLoadingScreen();
+        }
+      }
+
+      function keyUpHandler(e) {
+        // Handle Excel overlay close
+        if (e.key === 'Escape' && !excelOverlay.classList.contains('hidden')) {
+          excelOverlay.classList.add('hidden');
+        }
+      }
+
+      function clickHandler(e) {
+        if(blocked || banned || freeModeActive || forgivenessMode) return;
+        resetInactivityTimer();
+        addHuevitoPost();
+      }
+
+      // Free mode input handler
+      freeModeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (freeModeInput.value.trim()) {
+            handleFreeModeInput(freeModeInput.value);
+          } else {
+            toggleFreeMode();
+          }
+        }
+      });
+
+      window.addEventListener('keydown', keyDownHandler);
+      window.addEventListener('keyup', keyUpHandler);
+      window.addEventListener('click', clickHandler);
+
+      resetInactivityTimer();
     })();
   </script>
 </body>
