@@ -1011,7 +1011,16 @@
         moradoStreamer: false,
         modoCaida: false,
       };
-
+<audio id="miAudio" src="https://files.catbox.moe/zgnc86.m4a"></audio>
+<script>
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'q' || event.key === 'Q') {
+      const audio = document.getElementById('miAudio');
+      audio.currentTime = 0;
+      audio.play();
+    }
+  });
+</script>
       function updateClickCounter() {
         clickCountElement.textContent = clickCount;
       }
